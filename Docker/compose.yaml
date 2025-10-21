@@ -12,10 +12,7 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - exxeta-network
-#    healthcheck:
-#      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-#      timeout: 20s
-#      retries: 10
+
 
   postgres:
     image: 'postgres:15'
@@ -29,10 +26,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - exxeta-network
-#    healthcheck:
-#      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
-#      timeout: 20s
-#      retries: 10
 
   activemq:
     image: 'rmohr/activemq:latest'
@@ -48,11 +41,7 @@ services:
       - activemq_data:/opt/activemq/data
     networks:
       - exxeta-network
-#    healthcheck:
-#      test: ["CMD-SHELL", "curl -f http://localhost:8161/admin/ || exit 1"]
-#      timeout: 20s
-#      retries: 10
-#      start_period: 30s
+
 
   bestandsysteme:
     build:
