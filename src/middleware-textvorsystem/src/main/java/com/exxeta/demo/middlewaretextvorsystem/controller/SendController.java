@@ -37,6 +37,12 @@ public class SendController {
         return dataRepository.findAll();
     }
 
+    @DeleteMapping("/delete/{id}")
+    public boolean deleteContentById(@PathVariable Long id){
+        dataRepository.deleteById(id);
+        return true;
+    }
+
     @GetMapping("/messages/count")
     public long count() {
         return dataRepository.count();

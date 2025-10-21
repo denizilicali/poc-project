@@ -33,6 +33,11 @@ public class PingController {
 //    public List<MiddlewareData> getContent(){
 //        return restTemplate.getForObject(middlewareUrl + "/api/receive", List.class);
 //    }
+    @DeleteMapping("/trigger/delete/{id}")
+    public void deleteContentById(@PathVariable Long id){
+        restTemplate.delete(middlewareUrl + "/api/delete/" + id);
+        System.out.println("Content wit id number " + id + " was deleted");
+    }
 
     @GetMapping("/ping")
     public String ping() {
