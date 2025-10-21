@@ -32,7 +32,7 @@ public class SendController {
         return "Content added to database and sent to ActiveMQ queue!";
     }
 
-    @GetMapping("/recieve")
+    @GetMapping("/receive")
     public List<Data> getAllData() {
         return dataRepository.findAll();
     }
