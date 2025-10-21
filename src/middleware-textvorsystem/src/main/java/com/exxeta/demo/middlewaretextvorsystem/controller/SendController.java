@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @AllArgsConstructor
@@ -17,18 +19,22 @@ public class SendController {
     private final DataRepository dataRepository;
     private final JmsTemplate jmsTemplate;
 
-    // Bestandsysteme bu endpointi çağırır:
+
     @PostMapping("/send")
     public String send(@RequestBody String body) {
-        // 1) DB'ye yaz
+
         Data data = new Data();
-        data.setPayload(body);
+        data.setContent(body);
         dataRepository.save(data);
-        
-        // 2) ActiveMQ'ya kuyrukla
+
         jmsTemplate.convertAndSend("test.queue", body);
         
-        return "Added to database and sent to ActiveMQ queue!";
+        return "Content added to database and sent to ActiveMQ queue!";
+    }
+
+    @GetMapping("/recieve")
+    public List<Data> getAllData() {
+        return dataRepository.findAll();
     }
 
     @GetMapping("/messages/count")
@@ -36,7 +42,7 @@ public class SendController {
         return dataRepository.count();
     }
 
-    @GetMapping("/health")
+    @GetMapping("/healthcheck")
     public String health() {
         return "Middleware service is running!";
     }

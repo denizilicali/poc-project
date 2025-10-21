@@ -18,7 +18,7 @@ import java.time.Instant;
         private Long id;
 
         @Column(nullable=false)
-        private String payload;
+        private String content;
 
         private Instant createdAt = Instant.now();
 
