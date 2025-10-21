@@ -11,7 +11,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Table(name ="data_table")
-    public class Data {
+    public class MiddlewareData {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)

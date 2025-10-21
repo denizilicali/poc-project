@@ -1,6 +1,6 @@
 package com.exxeta.demo.middlewaretextvorsystem.controller;
 
-import com.exxeta.demo.middlewaretextvorsystem.entity.Data;
+import com.exxeta.demo.middlewaretextvorsystem.entity.MiddlewareData;
 import com.exxeta.demo.middlewaretextvorsystem.repository.DataRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.jms.core.JmsTemplate;
@@ -23,7 +23,7 @@ public class SendController {
     @PostMapping("/send")
     public String send(@RequestBody String body) {
 
-        Data data = new Data();
+        MiddlewareData data = new MiddlewareData();
         data.setContent(body);
         dataRepository.save(data);
 
@@ -33,7 +33,7 @@ public class SendController {
     }
 
     @GetMapping("/receive")
-    public List<Data> getAllData() {
+    public List<MiddlewareData> getAllData() {
         return dataRepository.findAll();
     }
 

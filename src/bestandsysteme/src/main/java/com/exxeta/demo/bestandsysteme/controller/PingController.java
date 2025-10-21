@@ -4,6 +4,7 @@ package com.exxeta.demo.bestandsysteme.controller;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+//import com.exxeta.demo.middlewaretextvorsystem.entity.MiddlewareData;
 
 import java.util.List;
 
@@ -28,6 +29,10 @@ public class PingController {
     public String getContent(){
         return restTemplate.getForObject(middlewareUrl + "/api/receive", List.class).toString();
     }
+//    @GetMapping("/trigger/get")
+//    public List<MiddlewareData> getContent(){
+//        return restTemplate.getForObject(middlewareUrl + "/api/receive", List.class);
+//    }
 
     @GetMapping("/ping")
     public String ping() {
