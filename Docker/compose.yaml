@@ -1,18 +1,127 @@
 services:
   mysql:
-    image: 'mysql:latest'
+    image: 'mysql:8.0'
     environment:
       - 'MYSQL_DATABASE=mydatabase'
       - 'MYSQL_PASSWORD=secret'
       - 'MYSQL_ROOT_PASSWORD=verysecret'
       - 'MYSQL_USER=myuser'
     ports:
-      - '3306'
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - exxeta-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
   postgres:
-    image: 'postgres:latest'
+    image: 'postgres:15'
     environment:
       - 'POSTGRES_DB=mydatabase'
       - 'POSTGRES_PASSWORD=secret'
       - 'POSTGRES_USER=myuser'
     ports:
-      - '5432'
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - exxeta-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      timeout: 20s
+      retries: 10
+
+  activemq:
+    image: 'rmohr/activemq:latest'
+    environment:
+      - 'ACTIVEMQ_ADMIN_LOGIN=admin'
+      - 'ACTIVEMQ_ADMIN_PASSWORD=admin'
+      - 'ACTIVEMQ_JMX_LOGIN=admin'
+      - 'ACTIVEMQ_JMX_PASSWORD=admin'
+    ports:
+      - '61616:61616'
+      - '8161:8161'
+    volumes:
+      - activemq_data:/opt/activemq/data
+    networks:
+      - exxeta-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8161/admin/ || exit 1"]
+      timeout: 20s
+      retries: 10
+      start_period: 30s
+
+  bestandsysteme:
+    build:
+      context: ../src/bestandsysteme
+      dockerfile: Dockerfile
+    ports:
+      - '8081:8081'
+    environment:
+      - 'SPRING_PROFILES_ACTIVE=docker'
+      - 'SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mydatabase'
+      - 'SPRING_DATASOURCE_USERNAME=myuser'
+      - 'SPRING_DATASOURCE_PASSWORD=secret'
+      - 'SPRING_JPA_HIBERNATE_DDL_AUTO=update'
+    depends_on:
+      - mysql
+    networks:
+      - exxeta-network
+
+  middleware-textvorsystem:
+    build:
+      context: ../src/middleware-textvorsystem
+      dockerfile: Dockerfile
+    ports:
+      - '8082:8082'
+    environment:
+      - 'SPRING_PROFILES_ACTIVE=docker'
+      - 'SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb'
+      - 'SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver'
+      - 'SPRING_DATASOURCE_USERNAME=sa'
+      - 'SPRING_DATASOURCE_PASSWORD='
+      - 'SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop'
+      - 'SPRING_SQL_INIT_MODE=never'
+      - 'SPRING_ACTIVEMQ_BROKER_URL=tcp://activemq:61616'
+      - 'SPRING_ACTIVEMQ_USER=admin'
+      - 'SPRING_ACTIVEMQ_PASSWORD=admin'
+    depends_on:
+      - postgres
+      - activemq
+    networks:
+      - exxeta-network
+
+  tesys:
+    build:
+      context: ../src/tesys
+      dockerfile: Dockerfile
+    ports:
+      - '8083:8083'
+    environment:
+      - 'SPRING_PROFILES_ACTIVE=docker'
+      - 'SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mydatabase'
+      - 'SPRING_DATASOURCE_USERNAME=myuser'
+      - 'SPRING_DATASOURCE_PASSWORD=secret'
+      - 'SPRING_JPA_HIBERNATE_DDL_AUTO=update'
+      - 'SPRING_ACTIVEMQ_BROKER_URL=tcp://activemq:61616'
+      - 'SPRING_ACTIVEMQ_USER=admin'
+      - 'SPRING_ACTIVEMQ_PASSWORD=admin'
+      - 'SPRING_ACTIVEMQ_POOL_ENABLED=true'
+      - 'SPRING_ACTIVEMQ_POOL_MAX_CONNECTIONS=10'
+    depends_on:
+      - mysql
+      - activemq
+    networks:
+      - exxeta-network
+
+volumes:
+  mysql_data:
+  postgres_data:
+  activemq_data:
+
+networks:
+  exxeta-network:
+    driver: bridge

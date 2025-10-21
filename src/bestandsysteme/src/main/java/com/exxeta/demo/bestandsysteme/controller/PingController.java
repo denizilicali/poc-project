@@ -13,13 +13,13 @@ public class PingController {
     public PingController(RestTemplate restTemplate) {
     this.restTemplate = restTemplate; }
 
-    @Value("http://localhost:8082")
-    String middlewareBase;
+//    @Value("http://localhost:8082")
+//    String middlewareBase;
 
-    // Manuel tetikleme: Bestandsysteme -> Middleware
+
     @PostMapping("/trigger")
     public String trigger(@RequestBody String body){
-        return restTemplate.postForObject(middlewareBase + "/api/send", body, String.class);
+        return restTemplate.postForObject("http://localhost:8082/api/send", body, String.class);
     }
 
     @GetMapping("/ping")

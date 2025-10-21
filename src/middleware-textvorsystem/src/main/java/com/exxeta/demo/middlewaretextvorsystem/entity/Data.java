@@ -6,17 +6,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
-@Table(name ="dataTable")
+@Table(name ="data_table")
     public class Data {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private UUID id;
+        private Long id;
 
         @Column(nullable=false)
         private String payload;
