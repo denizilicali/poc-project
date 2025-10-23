@@ -27,16 +27,23 @@ public class SendController {
 
     @PostMapping("/send")
     public String send(@RequestBody String body) {
-
+        // 1) Save to database
         MiddlewareData data = new MiddlewareData();
         data.setContent(body);
         dataRepository.save(data);
 
+        // 2) Send to ActiveMQ (for TesysMessageListener)
         jmsTemplate.convertAndSend("test.queue", body);
 
-        //restTemplate.postForObject("http://localhost:8084/tesys/get", body, String.class);
+        // 3) Send directly to TeSyS via RestTemplate
+        try {
+            String response = restTemplate.postForObject("http://tesys:8084/tesys/get", body, String.class);
+            System.out.println("[Middleware] Tesys response: " + response);
+        } catch (Exception e) {
+            System.out.println("[Middleware] Failed to send to Tesys directly: " + e.getMessage());
+        }
 
-        return "Content added to database and sent to ActiveMQ queue!";
+        return "Content added to database, sent to ActiveMQ queue, and forwarded to Tesys!";
     }
 
     @GetMapping("/receive")
