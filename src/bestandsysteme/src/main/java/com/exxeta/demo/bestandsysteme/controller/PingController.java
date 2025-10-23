@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 @RestController
+@RequestMapping("/trigger")
 public class PingController {
 
     private final RestTemplate restTemplate;
@@ -20,12 +21,12 @@ public class PingController {
         this.restTemplate = restTemplate;
     }
 
-    @PostMapping("/trigger")
+    @PostMapping()
     public String trigger(@RequestBody String body){
         return restTemplate.postForObject(middlewareUrl + "/api/send", body, String.class);
     }
 
-    @GetMapping("/trigger/get")
+    @GetMapping("/get")
     public String getContent(){
         return restTemplate.getForObject(middlewareUrl + "/api/receive", List.class).toString();
     }
@@ -33,10 +34,10 @@ public class PingController {
 //    public List<MiddlewareData> getContent(){
 //        return restTemplate.getForObject(middlewareUrl + "/api/receive", List.class);
 //    }
-    @DeleteMapping("/trigger/delete/{id}")
-    public void deleteContentById(@PathVariable Long id){
+    @DeleteMapping("/delete/{id}")
+    public String deleteContentById(@PathVariable Long id){
         restTemplate.delete(middlewareUrl + "/api/delete/" + id);
-        System.out.println("Content wit id number " + id + " was deleted");
+       return "Content with id number " + id + " was deleted";
     }
 
     @GetMapping("/ping")
