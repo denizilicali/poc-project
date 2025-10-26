@@ -2,9 +2,9 @@ package com.exxeta.demo.middlewaretextvorsystem.controller;
 
 import com.exxeta.demo.middlewaretextvorsystem.entity.MiddlewareData;
 import com.exxeta.demo.middlewaretextvorsystem.repository.DataRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,10 +21,24 @@ public class SendController {
 
     private final DataRepository dataRepository;
     private final JmsTemplate jmsTemplate;
-
     private final RestTemplate restTemplate;
 
+    @Transactional
+    @JmsListener(destination = "content.queue")
+    public void processContent(String content) {
+        MiddlewareData middlewareData = new MiddlewareData();
+        middlewareData.setContent(content);
+        dataRepository.save(middlewareData);
 
+    }
+
+    @GetMapping("/messages")
+    public List<MiddlewareData> allContent() {
+
+    return  dataRepository.findAll();
+    }
+
+/*
     @PostMapping("/send")
     public String send(@RequestBody String body) {
         // 1) Save to database
@@ -38,12 +52,14 @@ public class SendController {
         // 3) Send directly to TeSyS via RestTemplate
         try {
             String response = restTemplate.postForObject("http://tesys:8084/tesys/get", body, String.class);
-            System.out.println("[Middleware] Tesys response: " + response);
+           // System.out.println("[Middleware] Tesys response: " + response);
+            return "[Middleware] Tesys response: " + response;
         } catch (Exception e) {
             System.out.println("[Middleware] Failed to send to Tesys directly: " + e.getMessage());
         }
 
         return "Content added to database, sent to ActiveMQ queue, and forwarded to Tesys!";
+
     }
 
     @GetMapping("/receive")
@@ -56,6 +72,8 @@ public class SendController {
         dataRepository.deleteById(id);
         return true;
     }
+    */
+
 
     @GetMapping("/messages/count")
     public long count() {
