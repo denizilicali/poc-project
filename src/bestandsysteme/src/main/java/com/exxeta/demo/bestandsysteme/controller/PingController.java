@@ -13,6 +13,9 @@ import java.util.List;
 @RequestMapping("/trigger")
 public class PingController {
 
+    @Value("${middleware.url:http://middleware-textvorsystem:8082}")
+    private String middlewareUrl;
+
     private final RestTemplate restTemplate;
     private final JmsTemplate jmsTemplate;
 
@@ -25,11 +28,14 @@ public class PingController {
     public String postContent(@RequestBody String body) {
          jmsTemplate.convertAndSend("content.queue", body);
 
-         return "Content was sent to the Middleware";
+         return "Content was sent to the Middleware and added to the ActiveMQ Queue. Content: " + body;
     }
 
 
-
+    @GetMapping("/get")
+    public String getContent(){
+        return restTemplate.getForObject(middlewareUrl + "/api/messages", List.class).toString();
+    }
 /*
     @Value("${middleware.url:http://middleware-textvorsystem:8082}")
     private String middlewareUrl;

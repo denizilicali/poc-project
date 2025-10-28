@@ -27,8 +27,10 @@ public class SendController {
     @JmsListener(destination = "content.queue")
     public void processContent(String content) {
         MiddlewareData middlewareData = new MiddlewareData();
+        restTemplate.postForObject("http://tesys:8084/tesys/get", content, String.class);
         middlewareData.setContent(content);
         dataRepository.save(middlewareData);
+
 
     }
 
@@ -36,6 +38,16 @@ public class SendController {
     public List<MiddlewareData> allContent() {
 
     return  dataRepository.findAll();
+    }
+
+    @GetMapping("/messages/count")
+    public long count() {
+        return dataRepository.count();
+    }
+
+    @GetMapping("/healthcheck")
+    public String health() {
+        return "Middleware service is running!";
     }
 
 /*
@@ -73,15 +85,4 @@ public class SendController {
         return true;
     }
     */
-
-
-    @GetMapping("/messages/count")
-    public long count() {
-        return dataRepository.count();
-    }
-
-    @GetMapping("/healthcheck")
-    public String health() {
-        return "Middleware service is running!";
-    }
 }

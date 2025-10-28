@@ -13,6 +13,6 @@ public class TesysController {
     @PostMapping("/get")
     public String getContent(@RequestBody String body) {
 
-        return body.toString();
+        return "Content received from the Middleware Queue: " + body;
     }
 }
