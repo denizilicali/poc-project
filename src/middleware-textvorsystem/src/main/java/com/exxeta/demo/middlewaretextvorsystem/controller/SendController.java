@@ -20,18 +20,17 @@ import java.util.List;
 public class SendController {
 
     private final DataRepository dataRepository;
-    private final JmsTemplate jmsTemplate;
     private final RestTemplate restTemplate;
 
     @Transactional
     @JmsListener(destination = "content.queue")
     public void processContent(String content) {
         MiddlewareData middlewareData = new MiddlewareData();
-        restTemplate.postForObject("http://tesys:8084/tesys/get", content, String.class);
+
         middlewareData.setContent(content);
         dataRepository.save(middlewareData);
 
-
+        restTemplate.postForObject("http://tesys:8084/tesys/get", content, String.class);
     }
 
     @GetMapping("/messages")
